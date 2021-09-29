@@ -17,6 +17,7 @@ import ru.aurorahost.hoaxify.shared.GenericResponse;
 import ru.aurorahost.hoaxify.user.User;
 import ru.aurorahost.hoaxify.user.UserRepository;
 
+import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,6 +73,21 @@ public class UserControllerTest {
                 GenericResponse.class);
         // Assert
         assertThat(Objects.requireNonNull(response.getBody()).getMessage()).isNotNull();
+    }
+
+    @Test
+    public void postUser_whenUserIsValid_passwordIsHashedInDatabase() {
+        // Arrange
+        User user = createValidUser();
+
+        // Act
+        testRestTemplate.postForEntity(API_1_0_USERS, user, Object.class);
+        List<User> users = userRepository.findAll();
+        User inDb = users.get(0);
+
+        // Assert
+        assertThat(inDb.getPassword()).isNotEqualTo(user.getPassword());
+
     }
 
     private User createValidUser() {
